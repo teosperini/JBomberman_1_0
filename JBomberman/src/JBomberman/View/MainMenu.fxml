@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="400.0" prefWidth="513.0" stylesheets="@/StyleButtonMainMenu.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="JBomberman.Controller.MainMenuController">
+   <children>
+      <ImageView fitHeight="400.0" fitWidth="534.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../../resources/mainmenu.png" />
+         </image>
+      </ImageView>
+      <ToggleButton fx:id="gameButton" layoutX="230.0" layoutY="180.0" mnemonicParsing="false" onAction="#gameButtonPressed" prefHeight="25.0" prefWidth="73.0" text="Gioca" />
+      <ToggleButton layoutX="230.0" layoutY="220.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="73.0" text="Opzioni" />
+      <ToggleButton layoutX="230.0" layoutY="260.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="73.0" text="Profilo" />
+      <ToggleButton fx:id="exitButton" layoutX="230.0" layoutY="300.0" mnemonicParsing="false" onAction="#exitButtonPressed" prefHeight="25.0" prefWidth="73.0" text="Esci" />
+      <!-- Label fx:id="toggleLabel" text="Cliccami" styleClass="toggle-label" onMouseClicked="#handleLabelClick" -->
+      <Text fx:id="titoloText" layoutX="105.0" layoutY="118.0" strokeType="OUTSIDE" strokeWidth="0.0" text="JBomberMan" wrappingWidth="323.70306396484375">
+         <font>
+            <Font size="55.0" />
+         </font>
+      </Text>
+         <!-- Finestra semi trasparente -->
+         <AnchorPane fx:id="semiTransparentPane" onMouseClicked="#handleSemiTransparentClick" prefHeight="400.0" prefWidth="533.0" style="-fx-background-color: rgba(0, 0, 0, 0.5);" visible="false">
+            <!-- Contenuto della finestra semi trasparente -->
+            <!-- Ad esempio, un messaggio o altre interazioni -->
+         </AnchorPane>
+
+
+   </children>
+</AnchorPane>
