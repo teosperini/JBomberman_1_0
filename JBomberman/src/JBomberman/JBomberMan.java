@@ -23,9 +23,10 @@ public class JBomberMan extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        System.out.println(System.getProperty("user.dir"));
         JBomberMan.stage = stage;
         model.addObserver(view);
-        Parent root = FXMLLoader.load(getClass().getResource("View/MainMenu.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/MainMenu.fxml"));
         Scene scene = new Scene(root, 533, 400);
 
         stage.setResizable(false);

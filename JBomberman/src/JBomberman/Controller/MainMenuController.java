@@ -47,10 +47,7 @@ public class MainMenuController {
 
     @FXML
     private void gameButtonPressed() throws IOException{
-        model.changeSc("/JBomberman/View/Game.fxml");
-        //JBomberMan.getStage().setWidth(640);
-        //JBomberMan.getStage().setHeight(480);
-        //JBomberMan.getStage().setFullScreen(true);
+        model.changeSc("/Game.fxml");
     }
 
     @FXML

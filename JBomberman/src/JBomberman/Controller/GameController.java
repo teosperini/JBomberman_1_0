@@ -4,11 +4,13 @@ import JBomberman.JBomberMan;
 import JBomberman.Model.Model;
 import JBomberman.Utils.BackgorundMusic;
 import javafx.fxml.FXML;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -111,11 +113,12 @@ public class GameController {
                 j++;
             }
         }
-        randomBlocks.forEach(x -> aggiungiBlocchi(x.x(),x.y()));
+        randomBlocks.stream().filter(x -> (x.x() != 400 && x.y() != 240)).forEach(x -> aggiungiBlocchi(x.x(),x.y()));
     }
 
     private void aggiungiBlocchi(double x, double y) {
-        ImageView blockView = new ImageView("C:\\Users\\matte\\Documents\\università\\Porgrammazione\\JBomberman_1_0\\JBomberman\\src\\resources\\637590568153490001.png");
+        ImageView blockView = new ImageView();
+        blockView.setImage(new Image(getClass().getResourceAsStream("/637590568153490001.png")));
         blockView.setLayoutX(x);
         blockView.setLayoutY(y);
         blockView.setFitHeight(40);
@@ -123,7 +126,7 @@ public class GameController {
 
         pianoDiGioco.getChildren().add(blockView);
 
-        }
+    }
 
     /**
      * @param deltaX è il valore di quanto si deve spostare il personaggio sull'asse delle X
@@ -163,7 +166,7 @@ public class GameController {
         BackgorundMusic.setVolume();
         BackgorundMusic.playBomb();
          */
-        model.changeSc("/JBomberman/View/MainMenu.fxml");
+        model.changeSc("/MainMenu.fxml");
     }
 
     /**
