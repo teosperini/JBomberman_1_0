@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class GameController {
 
@@ -33,8 +34,9 @@ public class GameController {
     //con una funzione randomica vado poi a pescare delle coordinate casuali che metterò negli array di X e Y sottostanti
     //l'importante è che non compaiano entro le coordinate 80 x 80
     private final ArrayList<Double> coordinate = new ArrayList<>();
-    //in questi due array metterò le coordinate X e Y rispettivamente, grazie alle quali potrò controllare se il personaggio collide con esse
-    private final ArrayList<coordinata> randomBlocks = new ArrayList<>();
+    //in questi due array metterò le coordinate X e Y (rispettivamente) dei blocchi random, grazie alle quali potrò controllare se il personaggio collide con esse
+    private ArrayList<coordinata> randomBlocks = new ArrayList<>();
+
     /**
      * initialize è un metodo che viene chiamato dopo il metodo start e dopo
      * essere stati inizializzati i campi, in modo tale da averli tutti disponibili
@@ -44,13 +46,14 @@ public class GameController {
         // SOUNDTRACK
         BackgorundMusic bm = new BackgorundMusic();
         bm.initialize(JBomberMan.getStage());
-        BackgorundMusic.playMusic();
+        //BackgorundMusic.playMusic();
 
         //blocchiRandomX.add(new coordinate(100d,24d));
         //System.out.println(blocchiRandomX.get(0).x);
         // GENERAZIONE BLOCCHI
         blocchi.addAll(List.of(40d, 120d, 200d, 280d, 360d, 440d, 520d));
-        coordinate.addAll(List.of(80d,120d, 160d,200d,240d,280d,320d,360d,400d,440d,480d,520d,560d));
+
+        coordinate.addAll(List.of(80d,120d,160d,200d,240d,280d,320d,360d,400d,440d,480d,520d,560d));
         randomGen();
 
         // POSIZIONAMENTO DEL PERSONAGGIO
@@ -96,9 +99,9 @@ public class GameController {
      */
     private void randomGen() {
         int i = 0;
+        Random random = new Random();
         while(i<NUM_BLOCCHI_CASUALI){
-            Random random = new Random();
-            Double coord = coordinate.get(random.nextInt(coordinate.size()));
+            Double coord = coordinate.get(random.nextInt(coordinate.size()-1));
             if(coord <= 560d && coord >= 80d){
                 randomBlocks.add(new coordinata(coord,0d));
                 i++;
@@ -106,14 +109,15 @@ public class GameController {
         }
         int j = 0;
         while(j < NUM_BLOCCHI_CASUALI){
-            Random random = new Random();
-            Double coord = coordinate.get(random.nextInt(coordinate.size()));
+            Double coord = coordinate.get(random.nextInt(coordinate.size()-1));
             if(coord <= 400d && coord >= 80d){
                 randomBlocks.add(new coordinata(randomBlocks.get(j).x,coord));
                 j++;
             }
         }
-        randomBlocks.stream().filter(x -> (x.x() != 400 && x.y() != 240)).forEach(x -> aggiungiBlocchi(x.x(),x.y()));
+        randomBlocks = (ArrayList<coordinata>) randomBlocks.stream().filter(x -> (x.x() != 400 && x.y() != 240)).collect(Collectors.toList());
+        randomBlocks.forEach(System.out::println);
+        randomBlocks.forEach(x -> aggiungiBlocchi(x.x(),x.y()));
     }
 
     private void aggiungiBlocchi(double x, double y) {
@@ -161,7 +165,7 @@ public class GameController {
 
 
     private void vittoria() throws IOException {
-        BackgorundMusic.stopMusic();
+        //BackgorundMusic.stopMusic();
         /*
         BackgorundMusic.setVolume();
         BackgorundMusic.playBomb();
