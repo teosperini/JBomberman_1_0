@@ -578,7 +578,7 @@
    </ImageView>
    <ImageView fx:id="bomberman" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
       <image>
-         <Image url="@637590568153490001.png" />
+         <Image url="@steve.png" />
       </image>
    </ImageView>
 </AnchorPane>

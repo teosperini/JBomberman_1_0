@@ -122,7 +122,7 @@ public class GameController {
 
     private void aggiungiBlocchi(double x, double y) {
         ImageView blockView = new ImageView();
-        blockView.setImage(new Image(getClass().getResourceAsStream("/637590568153490001.png")));
+        blockView.setImage(new Image(getClass().getResourceAsStream("/stone.png")));
         blockView.setLayoutX(x);
         blockView.setLayoutY(y);
         blockView.setFitHeight(40);
