@@ -2,7 +2,7 @@ package JBomberman.Controller;
 
 import JBomberman.JBomberMan;
 import JBomberman.Model.Model;
-import JBomberman.Utils.BackgorundMusic;
+import JBomberman.Utils.BackgroundMusic;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -10,32 +10,30 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class GameController {
+    // model
+    private static final Model MODEL = JBomberMan.getModel();
+    // coordinates of the fixed blocks
+    private static final ArrayList<coordinate> COORDINATES_FIXED_BLOCKS = new ArrayList<>();
+    // how much the character can move every time a key is pressed
+    private static final int MOVEMENT = 1;
+    // how many random blocks are going to spawn
+    private static final int NUM_RND_BLOCKS = 30;
+    // the coordinates of the winning cell
+    private static final coordinate EXIT = new coordinate(10,6);
 
-    private static final Model model = JBomberMan.getModel();
+    private static final coordinate MAX = new coordinate(14,10);
+
     @FXML
-    private AnchorPane pianoDiGioco;
+    private AnchorPane gameBoard;
 
     @FXML
     private ImageView bomberman;
 
-    private final ArrayList<Double> blocchi = new ArrayList<>();
-
-    private static final double SPOSTAMENTO = 40.0;
-    private static final double NUM_BLOCCHI_CASUALI = 30    ;
-
-    //creo questo array con tutte le coordinate di spawn possibili per i blocchi random
-    //con una funzione randomica vado poi a pescare delle coordinate casuali che metterò negli array di X e Y sottostanti
-    //l'importante è che non compaiano entro le coordinate 80 x 80
-    private final ArrayList<Double> coordinate = new ArrayList<>();
-    //in questi due array metterò le coordinate X e Y (rispettivamente) dei blocchi random, grazie alle quali potrò controllare se il personaggio collide con esse
-    private ArrayList<coordinata> randomBlocks = new ArrayList<>();
+    private static final ArrayList<coordinate> RANDOM_BLOCKS = new ArrayList<>();
 
     /**
      * initialize è un metodo che viene chiamato dopo il metodo start e dopo
@@ -44,46 +42,47 @@ public class GameController {
     public void initialize() {
 
         // SOUNDTRACK
-        BackgorundMusic bm = new BackgorundMusic();
+        BackgroundMusic bm = new BackgroundMusic();
         bm.initialize(JBomberMan.getStage());
-        //BackgorundMusic.playMusic();
+        BackgroundMusic.playMusic();
 
-        //blocchiRandomX.add(new coordinate(100d,24d));
-        //System.out.println(blocchiRandomX.get(0).x);
-        // GENERAZIONE BLOCCHI
-        blocchi.addAll(List.of(40d, 120d, 200d, 280d, 360d, 440d, 520d));
+        // FILLING THE FIXED BLOCK ARRAY
+        for (int x = 1; x <14; x+=2) {
+            for (int y = 1; y < 10; y+=2){
+                COORDINATES_FIXED_BLOCKS.add(new coordinate(x,y));
+            }
+        }
 
-        coordinate.addAll(List.of(80d,120d,160d,200d,240d,280d,320d,360d,400d,440d,480d,520d,560d));
         randomGen();
 
         // POSIZIONAMENTO DEL PERSONAGGIO
         bomberman.setLayoutX(0);        // x = 0
         bomberman.setLayoutY(0);        // y = 0
-        pianoDiGioco.requestFocus();    // richiede il focus
-        pianoDiGioco.setFocusTraversable(false);     // attiva la possibilitò per il nodo (pianoDiGioco) di
+        gameBoard.requestFocus();    // richiede il focus
+        gameBoard.setFocusTraversable(false);     // attiva la possibilitò per il nodo (pianoDiGioco) di
         // essere "navigabile" quando l'utente utilizza scorciatoie da tastiera per spostarsi tra i nodi
 
         // REGISTRAZIONE KEY EVENT PER MOVIMENTO PERSONAGGIO
-        pianoDiGioco.setOnKeyPressed(keyEvent -> {
+        gameBoard.setOnKeyPressed(keyEvent -> {
             KeyCode keyCode = keyEvent.getCode();
             System.out.println("Key pressed: " + keyCode);
 
             switch (keyCode) {
-                //case W:
+                //case UP arrow key:
                 case UP:
-                    moveCharacter(0, -SPOSTAMENTO);
+                    moveCharacter(0, -MOVEMENT);
                     break;
-                //case S:
+                //case DOWN arrow key:
                 case DOWN:
-                    moveCharacter(0, SPOSTAMENTO);
+                    moveCharacter(0, MOVEMENT);
                     break;
-                //case A:
+                //case LEFT arrow key:
                 case LEFT:
-                    moveCharacter(-SPOSTAMENTO, 0);
+                    moveCharacter(-MOVEMENT, 0);
                     break;
-                //case D:
+                //case RIGHT arrow key:
                 case RIGHT:
-                    moveCharacter(SPOSTAMENTO, 0);
+                    moveCharacter(MOVEMENT, 0);
                     break;
                 case SPACE:
                     break;
@@ -91,71 +90,63 @@ public class GameController {
         });
     }
 
-    private record coordinata(double x, double y) { }
+    private record coordinate(int x, int y) { }
 
-    /**
-     * questo metodo riempie le due liste contenenti rispettivamente le coordinate X e Y
-     * dei blocchi casuali con valori randomici presi tra i valori possibili delle coordinate
-     */
     private void randomGen() {
-        int i = 0;
         Random random = new Random();
-        while(i<NUM_BLOCCHI_CASUALI){
-            Double coord = coordinate.get(random.nextInt(coordinate.size()-1));
-            if(coord <= 560d && coord >= 80d){
-                randomBlocks.add(new coordinata(coord,0d));
+        int i = 0;
+
+        while (i < NUM_RND_BLOCKS) {
+            coordinate coord = new coordinate(random.nextInt(MAX.x()), random.nextInt(MAX.y()));
+
+            if (!isValidBlockPosition(coord)) {
+                RANDOM_BLOCKS.add(coord);
                 i++;
             }
         }
-        int j = 0;
-        while(j < NUM_BLOCCHI_CASUALI){
-            Double coord = coordinate.get(random.nextInt(coordinate.size()-1));
-            if(coord <= 400d && coord >= 80d){
-                randomBlocks.add(new coordinata(randomBlocks.get(j).x,coord));
-                j++;
-            }
-        }
-        randomBlocks = (ArrayList<coordinata>) randomBlocks.stream().filter(x -> (x.x() != 400 && x.y() != 240)).collect(Collectors.toList());
-        randomBlocks.forEach(System.out::println);
-        randomBlocks.forEach(x -> aggiungiBlocchi(x.x(),x.y()));
+
+        RANDOM_BLOCKS.forEach(this::addBlocks);
     }
 
-    private void aggiungiBlocchi(double x, double y) {
+    private boolean isValidBlockPosition(coordinate xy) {
+        coordinate a = new coordinate(0,0);
+        coordinate b = new coordinate(1,0);
+        coordinate c = new coordinate(0,1);
+        return COORDINATES_FIXED_BLOCKS.contains(xy) || xy.equals(EXIT) || (xy.equals(a) || xy.equals(b) || xy.equals(c));
+    }
+
+
+    private void addBlocks(coordinate c) {
         ImageView blockView = new ImageView();
         blockView.setImage(new Image(getClass().getResourceAsStream("/stone.png")));
-        blockView.setLayoutX(x);
-        blockView.setLayoutY(y);
+        blockView.setLayoutX(c.x()*40);
+        blockView.setLayoutY(c.y()*40);
         blockView.setFitHeight(40);
         blockView.setFitWidth(40);
 
-        pianoDiGioco.getChildren().add(blockView);
+        gameBoard.getChildren().add(blockView);
 
     }
+
 
     /**
      * @param deltaX è il valore di quanto si deve spostare il personaggio sull'asse delle X
      * @param deltaY è il valore
      */
-    private void moveCharacter(double deltaX, double deltaY) {
+    private void moveCharacter(int deltaX, int deltaY) {
         // Calcola la nuova posizione del personaggio principale
-        double newX = bomberman.getLayoutX() + deltaX;
-        double newY = bomberman.getLayoutY() + deltaY;
+        int newX = ((int)bomberman.getLayoutX()/40) + deltaX;
+        int newY = ((int)bomberman.getLayoutY()/40) + deltaY;
 
-        // Imposta i limiti della scena
-        double sceneWidth = pianoDiGioco.getWidth();
-        double sceneHeight = pianoDiGioco.getHeight();
-        double characterWidth = bomberman.getFitWidth();
-        double characterHeight = bomberman.getFitHeight();
-
-        newX = clamp(newX, sceneWidth - characterWidth);
-        newY = clamp(newY, sceneHeight - characterHeight);
+        newX = clamp(newX, MAX.x());
+        newY = clamp(newY, MAX.y());
 
         if (!collisione(newX, newY)) {
-            bomberman.setLayoutX(newX);
-            bomberman.setLayoutY(newY);
-            if (newX == 400 && newY == 240) {
+            bomberman.setLayoutX(newX * 40);
+            bomberman.setLayoutY(newY * 40);
+            if (newX == EXIT.x() && newY == EXIT.y()) {
                 try {
-                    vittoria();
+                    victory();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -164,13 +155,13 @@ public class GameController {
     }
 
 
-    private void vittoria() throws IOException {
-        //BackgorundMusic.stopMusic();
+    private void victory() throws IOException {
+        BackgroundMusic.stopMusic();
         /*
         BackgorundMusic.setVolume();
         BackgorundMusic.playBomb();
          */
-        model.changeSc("/MainMenu.fxml");
+        MODEL.changeSc("/MainMenu.fxml");
     }
 
     /**
@@ -181,13 +172,12 @@ public class GameController {
      * @param max
      * @return
      */
-
-    private double clamp(double value, double max) {
+    private int clamp(int value, int max) {
         return Math.max(0, Math.min(max, value));
     }
 
-    private boolean collisione(double x, double y) {
-        coordinata cord = new coordinata(x,y);
-        return (blocchi.contains(x) && blocchi.contains(y) || randomBlocks.contains(cord));
+    private boolean collisione(int x, int y) {
+        coordinate cord = new coordinate(x,y);
+        return (COORDINATES_FIXED_BLOCKS.contains(cord) || RANDOM_BLOCKS.contains(cord));
     }
 }
