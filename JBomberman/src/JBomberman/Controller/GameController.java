@@ -85,9 +85,13 @@ public class GameController {
                     moveCharacter(MOVEMENT, 0);
                     break;
                 case SPACE:
+                    bomb();
                     break;
             }
         });
+    }
+
+    private void bomb() {
     }
 
     private record coordinate(int x, int y) { }
