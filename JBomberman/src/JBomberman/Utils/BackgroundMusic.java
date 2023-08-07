@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 import java.nio.file.Paths;
 public class BackgroundMusic {
     private static final String PATH = System.getProperty("user.dir");
-    private static final String GAMESOUNDTRACK = PATH + "\\JBomberman\\src\\resources\\UndertaleOST.mp3";
+    private static final String GAMESOUNDTRACK = "..\\JBomberman\\src\\resources\\UndertaleOST.mp3";
     private static final String GAMEBOMB = "..\\JBomberman\\src\\resources\\Meme de bomba nuclear.mp3";
 
     private static MediaPlayer mediaPlayer;
