@@ -3,11 +3,14 @@ package JBomberman.Controller;
 import JBomberman.JBomberMan;
 import JBomberman.Model.Model;
 import JBomberman.Utils.BackgroundMusic;
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.media.AudioClip;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,11 +30,16 @@ public class GameController {
 
     private static final coordinate MAX = new coordinate(14,10);
 
+    private boolean isBombExploding = false;
+
     @FXML
     private AnchorPane gameBoard;
 
     @FXML
     private ImageView bomberman;
+
+    @FXML
+    private ImageView tnt;
 
     private static final ArrayList<coordinate> RANDOM_BLOCKS = new ArrayList<>();
 
@@ -92,7 +100,53 @@ public class GameController {
     }
 
     private void bomb() {
+        if (isBombExploding) {
+            return;
+        }
+        isBombExploding = true;
+
+        tnt = new ImageView();
+        tnt.setImage(new Image(getClass().getResourceAsStream("/tnt.jpeg")));
+        tnt.setLayoutX(bomberman.getLayoutX());
+        tnt.setLayoutY(bomberman.getLayoutY());
+        tnt.setFitHeight(40);
+        tnt.setFitWidth(40);
+        AudioClip boom = new AudioClip(getClass().getResource("/tnt_exp.mp3").toExternalForm());
+
+        PauseTransition pauseTNTSpawn = new PauseTransition(Duration.millis(50));
+        pauseTNTSpawn.setOnFinished(event -> {
+            gameBoard.getChildren().add(tnt);
+            boom.play();
+            PauseTransition pauseTNT = new PauseTransition(Duration.millis(500));
+            pauseTNT.setOnFinished(event1 -> {
+                gameBoard.getChildren().remove(tnt);
+                PauseTransition respawnTNT = new PauseTransition(Duration.millis(500));
+                respawnTNT.setOnFinished(event3 -> {
+                    gameBoard.getChildren().add(tnt);
+                    PauseTransition removeTNT = new PauseTransition(Duration.millis(650));
+                    removeTNT.setOnFinished(event4 -> {
+                        gameBoard.getChildren().remove(tnt);
+                        isBombExploding = false;
+                    });
+                    removeTNT.play();
+                });
+                respawnTNT.play();
+
+            });
+            pauseTNT.play();
+        });
+        pauseTNTSpawn.play();
+
+
+
+
+
+
+
+
     }
+
+
 
     private record coordinate(int x, int y) { }
 
