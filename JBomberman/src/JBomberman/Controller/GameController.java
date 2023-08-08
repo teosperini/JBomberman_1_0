@@ -14,6 +14,8 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class GameController {
@@ -29,6 +31,9 @@ public class GameController {
     private static final coordinate EXIT = new coordinate(10,6);
 
     private static final coordinate MAX = new coordinate(14,10);
+
+    private static final Map<coordinate, ImageView> COORDINATES_RANDOM_BLOCKS = new HashMap<>();
+
 
     private boolean isBombExploding = false;
 
@@ -113,39 +118,84 @@ public class GameController {
         tnt.setFitWidth(40);
         AudioClip boom = new AudioClip(getClass().getResource("/tnt_exp.mp3").toExternalForm());
 
-        PauseTransition pauseTNTSpawn = new PauseTransition(Duration.millis(50));
-        pauseTNTSpawn.setOnFinished(event -> {
+        PauseTransition spawnTNT = new PauseTransition(Duration.millis(50));
+        PauseTransition pauseTNT = new PauseTransition(Duration.millis(500));
+        PauseTransition respawnTNT = new PauseTransition(Duration.millis(500));
+        PauseTransition removeTNT = new PauseTransition(Duration.millis(650));
+
+        spawnTNT.setOnFinished(event -> {
             gameBoard.getChildren().add(tnt);
             boom.play();
-            PauseTransition pauseTNT = new PauseTransition(Duration.millis(500));
-            pauseTNT.setOnFinished(event1 -> {
-                gameBoard.getChildren().remove(tnt);
-                PauseTransition respawnTNT = new PauseTransition(Duration.millis(500));
-                respawnTNT.setOnFinished(event3 -> {
-                    gameBoard.getChildren().add(tnt);
-                    PauseTransition removeTNT = new PauseTransition(Duration.millis(650));
-                    removeTNT.setOnFinished(event4 -> {
-                        gameBoard.getChildren().remove(tnt);
-                        isBombExploding = false;
-                    });
-                    removeTNT.play();
-                });
-                respawnTNT.play();
-
-            });
             pauseTNT.play();
         });
-        pauseTNTSpawn.play();
 
+        pauseTNT.setOnFinished(event1 -> {
+        gameBoard.getChildren().remove(tnt);
+            respawnTNT.play();
+        });
 
+        respawnTNT.setOnFinished(event3 -> {
+            gameBoard.getChildren().add(tnt);
 
+            removeTNT.play();
 
+        });
 
+        removeTNT.setOnFinished(event4 -> {
+            gameBoard.getChildren().remove(tnt);
+            isBombExploding = false;
+            try {
+                explosion((int)tnt.getLayoutX(),(int)tnt.getLayoutY());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
+        spawnTNT.play();
 
 
     }
+    //  <  >
+    private void explosion(int x, int y) throws IOException {
+        x = x/40;
+        y = y/40;
+        ArrayList<coordinate> rimossi = new ArrayList<>();
+        System.out.println(x + " " + y);
+        coordinate coordinate = new coordinate(x-1,y);
+        if ((x > 0) && RANDOM_BLOCKS.contains(coordinate)){
 
+            RANDOM_BLOCKS.remove(coordinate);
+            rimossi.add(coordinate);
+        }
+        coordinate = new coordinate(x,y-1);
+        if ((y > 0) && RANDOM_BLOCKS.contains(coordinate)){
+            RANDOM_BLOCKS.remove(coordinate);
+            rimossi.add(coordinate);
+        }
+        coordinate = new coordinate(x+1,y);
+        if ((x < 14) && RANDOM_BLOCKS.contains(coordinate)){
+            RANDOM_BLOCKS.remove(coordinate);
+            rimossi.add(coordinate);
+        }
+        coordinate = new coordinate(x,y+1);
+        if ((y < 10) && RANDOM_BLOCKS.contains(coordinate)){
+            RANDOM_BLOCKS.remove(coordinate);
+            rimossi.add(coordinate);
+        }
+        for (coordinate coord : rimossi) {
+            if(coord.x() == bomberman.getLayoutX()/40 && coord.y() == bomberman.getLayoutY()/40){
+                defeat();
+            }
+        }
+
+        for (coordinate coord : rimossi) {
+            ImageView imageView = COORDINATES_RANDOM_BLOCKS.get(coord);
+            if (imageView != null) {
+                gameBoard.getChildren().remove(imageView);
+            }
+        }
+        gameBoard.layout();
+    }
 
 
     private record coordinate(int x, int y) { }
@@ -183,7 +233,7 @@ public class GameController {
         blockView.setFitWidth(40);
 
         gameBoard.getChildren().add(blockView);
-
+        COORDINATES_RANDOM_BLOCKS.put(c, blockView);
     }
 
 
@@ -212,6 +262,10 @@ public class GameController {
         }
     }
 
+    private void defeat() throws IOException {
+        BackgroundMusic.stopMusic();
+        MODEL.changeSc("/MainMenu.fxml");
+    }
 
     private void victory() throws IOException {
         BackgroundMusic.stopMusic();
